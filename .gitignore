@@ -1,0 +1,17 @@
+# секреты и служебное — не публиковать
+.env
+*.env
+*.pem
+*.key
+id_*
+*_askpass.sh
+__pycache__/
+*.pyc
+*.log
+*.bin
+*.tar
+*.tar.gz
+
+# локальные хвосты
+*vmware*
+.DS_Store
