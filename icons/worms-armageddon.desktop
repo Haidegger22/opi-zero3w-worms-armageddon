@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Worms Armageddon
+Name[ru]=Worms Armageddon
+Comment=Запуск Worms Armageddon (Hangover/Wine, профиль ~/.wine-worms-hg)
+Exec=bash -c "/home/orangepi/worms-zero.sh >> /tmp/worms-launch-desktop.log 2>&1"
+Icon=/home/orangepi/.local/share/icons/worms-armageddon.png
+Terminal=false
+Categories=Game;ActionGame;
+Keywords=worms;черви;armageddon;
+StartupNotify=true

@@ -136,6 +136,41 @@ journalctl --user -u game-cursor -n 5 --no-pager | tail -2
 
 Настройка скорости и разбор «догонялок» — в [docs/cursor-and-stick.md](docs/cursor-and-stick.md).
 
+## Шаг 8. Ярлык: рабочий стол и меню
+
+Иконки и сам ярлык лежат в репозитории, в папке `icons/`.
+
+```bash
+# иконки: пять размеров + основная (её же читает карусель рабочего стола)
+mkdir -p ~/.local/share/icons/worms
+cp icons/worms-armageddon-*.png ~/.local/share/icons/worms/
+cp icons/worms-armageddon-512.png ~/.local/share/icons/worms-armageddon.png
+
+# ярлык: путь к лончеру подставляем свой
+mkdir -p ~/.local/share/applications
+sed "s|/home/orangepi|$HOME|g" icons/worms-armageddon.desktop \
+    > ~/.local/share/applications/worms-armageddon.desktop
+update-desktop-database ~/.local/share/applications
+
+# копия на рабочий стол (MATE требует отметку «доверенный», иначе клик не сработает)
+mkdir -p ~/Desktop
+cp ~/.local/share/applications/worms-armageddon.desktop ~/Desktop/
+chmod +x ~/Desktop/worms-armageddon.desktop
+gio set ~/Desktop/worms-armageddon.desktop metadata::trusted true 2>/dev/null
+
+# проверка
+desktop-file-validate ~/Desktop/worms-armageddon.desktop && echo "ярлык в порядке"
+```
+
+Ярлык появится в меню в разделе **Игры** (категория `Game`) и на рабочем столе.
+
+> ⚠️ Лончер должен быть исполняемым (`chmod +x ~/worms-zero.sh`) — иначе клик по ярлыку
+> молча ничего не делает. В самом ярлыке запуск идёт через `bash -c`, поэтому он работает
+> даже без права на исполнение у лончера, а журнал запуска остаётся в `/tmp/worms-launch-desktop.log`.
+
+Если иконок нет под рукой (ставите без репозитория) — просто уберите строку `Icon=` из
+ярлыка, он будет работать и без картинки.
+
 ## Проверка, что всё работает
 
 ```bash
@@ -382,5 +417,41 @@ else
 fi
 SCRIPT_EOF
 chmod +x $HOME/worms-ru-install.sh 2>/dev/null || true
+```
+
+
+### 5. Ярлык (рабочий стол и меню)
+
+Иконки в этот блок не вставить — это картинки. Возьмите их из папки `icons/` репозитория
+(файлы `worms-armageddon-48/64/128/256/512.png`), либо уберите строку `Icon=` — ярлык
+будет работать и без картинки.
+
+```bash
+mkdir -p $HOME/.local/share/icons/worms
+# сюда положите пять PNG из папки icons/ репозитория, затем:
+cp $HOME/.local/share/icons/worms/worms-armageddon-512.png $HOME/.local/share/icons/worms-armageddon.png
+
+cat > $HOME/worms-armageddon.desktop << 'SCRIPT_EOF'
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Worms Armageddon
+Name[ru]=Worms Armageddon
+Comment=Запуск Worms Armageddon (Hangover/Wine, профиль ~/.wine-worms-hg)
+Exec=bash -c "/home/orangepi/worms-zero.sh >> /tmp/worms-launch-desktop.log 2>&1"
+Icon=/home/orangepi/.local/share/icons/worms-armageddon.png
+Terminal=false
+Categories=Game;ActionGame;
+Keywords=worms;черви;armageddon;
+StartupNotify=true
+SCRIPT_EOF
+sed -i "s|/home/orangepi|$HOME|g" $HOME/worms-armageddon.desktop
+
+mkdir -p $HOME/.local/share/applications $HOME/Desktop
+cp $HOME/worms-armageddon.desktop $HOME/.local/share/applications/
+cp $HOME/worms-armageddon.desktop $HOME/Desktop/
+chmod +x $HOME/Desktop/worms-armageddon.desktop
+gio set $HOME/Desktop/worms-armageddon.desktop metadata::trusted true 2>/dev/null || true
+update-desktop-database $HOME/.local/share/applications 2>/dev/null || true
 ```
 
